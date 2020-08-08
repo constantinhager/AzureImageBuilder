@@ -33,3 +33,71 @@ stages:
               ArtifactName: "services"
               publishLocation: "Container"
             displayName: "Create Artifact for the services Folder"
+
+  - stage: Deploy
+    dependsOn: Build
+    condition: succeeded()
+
+    jobs:
+      - job: Deploy
+
+        pool:
+          vmImage: "ubuntu-latest"
+
+        steps:
+          - task: DownloadBuildArtifacts@0
+            inputs:
+              buildType: "current"
+              downloadType: "single"
+              artifactName: "global"
+              downloadPath: "$(System.DefaultWorkingDirectory)"
+            displayName: "Download Azure global Artifact"
+
+          - task: DownloadBuildArtifacts@0
+            inputs:
+              buildType: "current"
+              downloadType: "single"
+              artifactName: "services"
+              downloadPath: "$(System.DefaultWorkingDirectory)"
+            displayName: "Download Azure services Artifact"
+
+          - task: TerraformInstaller@0
+            inputs:
+              terraformVersion: "0.12.28"
+
+          - task: TerraformTaskV1@0
+            inputs:
+              provider: "azurerm"
+              command: "init"
+              workingDirectory: "$(System.DefaultWorkingDirectory)/services/wvd-sig/"
+              backendServiceArm: "MSDN"
+              backendAzureRmResourceGroupName: "tfstate-rg"
+              backendAzureRmStorageAccountName: "chterraformbestpractices"
+              backendAzureRmContainerName: "wvdsig"
+              backendAzureRmKey: "wvdsig.tfstate"
+            displayName: "Terrafom Init wvd-sig"
+
+          - task: TerraformTaskV1@0
+            inputs:
+              provider: "azurerm"
+              command: "validate"
+              workingDirectory: "$(System.DefaultWorkingDirectory)/services/wvd-sig/"
+            displayName: "Terrafom Validate wvd-sig"
+
+          - task: TerraformTaskV1@0
+            inputs:
+              provider: "azurerm"
+              command: "plan"
+              workingDirectory: "$(System.DefaultWorkingDirectory)/services/wvd-sig/"
+              commandOptions: "-out main.tfplan"
+              environmentServiceNameAzureRM: "MSDN"
+            displayName: "Terrafom plan wvd-sig"
+
+          - task: TerraformTaskV1@0
+            inputs:
+              provider: "azurerm"
+              command: "apply"
+              workingDirectory: "$(System.DefaultWorkingDirectory)/services/wvd-sig/"
+              commandOptions: "main.tfplan"
+              environmentServiceNameAzureRM: "MSDN"
+            displayName: "Terrafom apply wvd-sig"
