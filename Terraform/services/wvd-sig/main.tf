@@ -22,7 +22,7 @@ module "SharedImage" {
   source = "../../global/SharedImage"
 
   shared_image_name                 = "wvd-test"
-  shared_image_gallery_name         = module.SharedImageGallery.name
+  shared_image_gallery_name         = module.SharedImageGallery.shared_image_gallery_name
   shared_image_resource_group_name  = module.ResourceGroup.resource_group_name
   shared_image_location             = "West Europe"
   shared_image_tag_function         = "wvd test image"
