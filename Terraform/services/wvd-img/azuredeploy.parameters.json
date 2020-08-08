@@ -1,0 +1,33 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "0.0.0.1",
+    "parameters": {
+        "imageTemplateName": {
+            "value": "chwvdtemplate"
+        },
+        "location": {
+            "value": "westeurope"
+        },
+        "managedIdentityResourceId": {
+            "value": "/subscriptions/3932848d-e8f8-4a6e-a772-bc69214d0530/resourceGroups/sig-rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/chaibIdentity"
+        },
+        "subscriptionID": {
+            "value": "3932848d-e8f8-4a6e-a772-bc69214d0530"
+        },
+        "shared_image_gallery_RGName": {
+            "value": "sig-rg"
+        },
+        "shared_image_gallery_Name": {
+            "value": "chwvdsig"
+        },
+        "shared_image_gallery_image_definition": {
+            "value": "wvd-test"
+        },
+        "runOutputName": {
+            "value": "chtest"
+        },
+        "firstreplicationregion": {
+            "value": "westeurope"
+        }
+    }
+}

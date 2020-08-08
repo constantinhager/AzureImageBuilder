@@ -1,0 +1,127 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "0.0.0.1",
+    "parameters": {
+        "imageTemplateName": {
+            "type": "string",
+            "metadata": {
+                "description": "name of the image template"
+            }
+        },
+        "location": {
+            "type": "string",
+            "metadata": {
+                "description": "location of service account"
+            }
+        },
+        "managedIdentityResourceId": {
+            "type": "string",
+            "metadata": {
+                "description": "the resource id of the managed identity"
+            }
+        },
+        "subscriptionID": {
+            "type": "string",
+            "metadata": {
+                "description": "the subscription id where you deploy to"
+            }
+        },
+        "shared_image_gallery_RGName": {
+            "type": "string",
+            "metadata": {
+                "description": "the resource group of the shared image gallery"
+            }
+        },
+        "shared_image_gallery_Name": {
+            "type": "string",
+            "metadata": {
+                "description": "the name of the shared image gallery where the aib image should be stored"
+            }
+        },
+        "shared_image_gallery_image_definition": {
+            "type": "string",
+            "metadata": {
+                "description": "the definition inside the shared image gallery where the aib image should be stored"
+            }
+        },
+        "runOutputName": {
+            "type": "string",
+            "metadata": {
+                "description": "this gives you the properties of the managed image on completion"
+            }
+        },
+        "firstreplicationregion": {
+            "type": "string",
+            "metadata": {
+                "description": "sig needs at least one replication region"
+            }
+        }
+    },
+
+    "variables": {
+
+    },
+
+    "resources": [
+        {
+            "name": "[parameters('imageTemplateName')]",
+            "type": "Microsoft.VirtualMachineImages/imageTemplates",
+            "apiVersion": "2019-05-01-preview",
+            "location": "[parameters('location')]",
+            "dependsOn": [],
+
+            "tags": {
+                "imagebuilderTemplate": "wvdimage",
+                "userIdentity": "enabled"
+            },
+
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[parameters('managedIdentityResourceId')]": {}
+                }
+            },
+            "properties": {
+                "buildTimeoutInMinutes": 100,
+                "vmProfile": {
+                    "vmSize": "Standard_D2_v2",
+                    "osDiskSizeGB": 127
+                },
+                "source": {
+                    "type": "PlatformImage",
+                    "publisher": "MicrosoftWindowsDesktop",
+                    "offer": "office-365",
+                    "sku": "20h1-evd-o365pp",
+                    "version": "latest"
+                },
+
+                "customize": [
+                    {
+                        "type": "WindowsUpdate",
+                        "searchCriteria": "IsInstalled=0",
+                        "filters": [
+                            "exclude:$_.Title -like '*Preview*'",
+                            "include:$true"
+                        ],
+                        "updateLimit": 20
+                    }
+                ],
+
+                "distribute": [
+                    {
+                        "type": "SharedImage",
+                        "galleryImageId": "[concat('/subscriptions/',parameters('subscriptionID'), '/resourceGroups/', parameters('shared_image_gallery_RGName'),'/providers/Microsoft.Compute/galleries/',parameters('shared_image_gallery_Name'),'/images/',parameters('shared_image_gallery_image_definition'))]",
+                        "runOutputName": "[parameters('runOutputName')]",
+                        "artifactTags": {
+                            "source": "azureVmImageBuilder",
+                            "baseosimg": "windows10multisession"
+                        },
+                        "replicationRegions": [
+                            "[parameters('firstreplicationregion')]"
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}
