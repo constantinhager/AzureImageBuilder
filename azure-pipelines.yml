@@ -34,6 +34,13 @@ stages:
               publishLocation: "Container"
             displayName: "Create Artifact for the services Folder"
 
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "$(Build.SourcesDirectory)/Terraform/services/wvd-img/TestArtifact"
+              ArtifactName: "testartifact"
+              publishLocation: "Container"
+            displayName: "Create testartifact"
+
   - stage: Deploy
     dependsOn: Build
     condition: succeeded()
@@ -51,7 +58,7 @@ stages:
               downloadType: "single"
               artifactName: "global"
               downloadPath: "$(System.DefaultWorkingDirectory)"
-            displayName: "Download Azure global Artifact"
+            displayName: "Download global Artifact"
 
           - task: DownloadBuildArtifacts@0
             inputs:
@@ -59,7 +66,15 @@ stages:
               downloadType: "single"
               artifactName: "services"
               downloadPath: "$(System.DefaultWorkingDirectory)"
-            displayName: "Download Azure services Artifact"
+            displayName: "Download services Artifact"
+
+          - task: DownloadBuildArtifacts@0
+            inputs:
+              buildType: "current"
+              downloadType: "single"
+              artifactName: "testartifact"
+              downloadPath: "$(System.DefaultWorkingDirectory)"
+            displayName: "Download testartifact"
 
           - task: TerraformInstaller@0
             inputs:
@@ -101,3 +116,20 @@ stages:
               commandOptions: "main.tfplan"
               environmentServiceNameAzureRM: "MSDN"
             displayName: "Terrafom apply wvd-sig"
+          
+          - task: AzureImageBuilderTask@1
+            inputs:
+              managedIdentity: '/subscriptions/3932848d-e8f8-4a6e-a772-bc69214d0530/resourcegroups/sig-rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/chaibIdentity'
+              imageSource: 'marketplace'
+              baseImagePubOfferSku: 'MicrosoftWindowsDesktop:office-365:20h1-evd-o365pp'
+              provisioner: 'powershell'
+              windowsUpdateProvisioner: true
+              packagePath: '$(System.DefaultWorkingDirectory)\testartifact'
+              inlineScript: '& C:\buildArtifacts\testartifact\website.ps1'
+              storageAccountName: 'wvdfilesharech'
+              distributeType: 'sig'
+              galleryImageId: '/subscriptions/3932848d-e8f8-4a6e-a772-bc69214d0530/resourceGroups/sig-rg/providers/Microsoft.Compute/galleries/chwvdsig/images/wvd-test'
+              replicationRegions: 'westeurope'
+              ibSubscription: 'MSDN'
+              ibAzureResourceGroup: 'sig-rg'
+              ibLocation: 'westeurope'
