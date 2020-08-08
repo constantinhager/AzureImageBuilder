@@ -9,10 +9,10 @@
             "value": "westeurope"
         },
         "managedIdentityResourceId": {
-            "value": "/subscriptions/3932848d-e8f8-4a6e-a772-bc69214d0530/resourceGroups/sig-rg/providers/Microsoft.ManagedIdentity/userAssignedIdentities/chaibIdentity"
+            "value": ""
         },
         "subscriptionID": {
-            "value": "3932848d-e8f8-4a6e-a772-bc69214d0530"
+            "value": ""
         },
         "shared_image_gallery_RGName": {
             "value": "sig-rg"
