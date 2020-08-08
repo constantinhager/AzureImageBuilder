@@ -4,16 +4,32 @@
 # https://aka.ms/yaml
 
 trigger:
-- master
+  branches:
+    include:
+      - master
+  paths:
+    include:
+      - Terraform/services/*
 
-pool:
-  vmImage: 'ubuntu-latest'
+stages:
+  - stage: Build
+    jobs:
+      - job: Build
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+        pool:
+          vmImage: "ubuntu-latest"
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+        steps:
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "$(Build.SourcesDirectory)/Terraform/Global"
+              ArtifactName: "global"
+              publishLocation: "Container"
+            displayName: "Create Artifact for the global Folder"
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "$(Build.SourcesDirectory)/Terraform/services"
+              ArtifactName: "services"
+              publishLocation: "Container"
+            displayName: "Create Artifact for the services Folder"

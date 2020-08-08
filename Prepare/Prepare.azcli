@@ -1,0 +1,24 @@
+# If not signed into azure do this with
+az login
+
+# List all Accounts
+az account list
+
+# Select the right subscription
+az account set --subscription '<your subscription name>'
+
+# Azure Image builde is in preview. You need to register It.
+az feature register --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview
+az feature show --namespace Microsoft.VirtualMachineImages --name VirtualMachineTemplatePreview
+
+# Check if all providers are registered
+az provider show -n Microsoft.VirtualMachineImages | ConvertFrom-Json | Select-Object -ExpandProperty RegistrationState
+az provider show -n Microsoft.Storage | ConvertFrom-Json | Select-Object -ExpandProperty RegistrationState
+az provider show -n Microsoft.Compute | ConvertFrom-Json | Select-Object -ExpandProperty RegistrationState
+az provider show -n Microsoft.KeyVault | ConvertFrom-Json | Select-Object -ExpandProperty RegistrationState
+
+# If one of them are not registered please run
+## az provider register -n Microsoft.VirtualMachineImages
+## az provider register -n Microsoft.Storage
+## az provider register -n Microsoft.Compute
+## az provider register -n Microsoft.KeyVault
