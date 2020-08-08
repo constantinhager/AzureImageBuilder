@@ -124,7 +124,7 @@ stages:
               baseImagePubOfferSku: 'MicrosoftWindowsDesktop:office-365:20h1-evd-o365pp'
               provisioner: 'powershell'
               windowsUpdateProvisioner: true
-              packagePath: '$(System.DefaultWorkingDirectory)\testartifact'
+              packagePath: '$(System.DefaultWorkingDirectory)/testartifact'
               inlineScript: '& C:\buildArtifacts\testartifact\website.ps1'
               storageAccountName: 'wvdfilesharech'
               distributeType: 'sig'
