@@ -20,8 +20,16 @@ stages:
           vmImage: "ubuntu-latest"
 
         steps:
-          - task: PowerShell@2
+          - task: PublishBuildArtifacts@1
             inputs:
-              targetType: 'inline'
-              script: 'Get-Childitem $env:build_sourcesdirectory'
-              pwsh: true
+              PathtoPublish: "$(Build.SourcesDirectory)/Terraform/global"
+              ArtifactName: "global"
+              publishLocation: "Container"
+            displayName: "Create Artifact for the global Folder"
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "$(Build.SourcesDirectory)/Terraform/services"
+              ArtifactName: "services"
+              publishLocation: "Container"
+            displayName: "Create Artifact for the services Folder"
